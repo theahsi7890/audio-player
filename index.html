@@ -3,130 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自定义音频播放器</title>
+    <title>音频播放器</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0;
+            box-sizing: border-box;
         }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif;
+            background-color: transparent;
+            padding: 0;
+            margin: 0;
+        }
+        
         .player-container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 100%;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e1e5e9;
+            margin: 0;
+            box-shadow: none;
         }
+        
         .audio-info {
-            text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
+        
         .audio-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #37352f;
+            margin-bottom: 8px;
+            text-align: left;
         }
+        
+        .file-upload {
+            margin-bottom: 12px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .file-input-button {
+            background: #2383e2;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .file-input-button:hover {
+            background: #1a6bb8;
+        }
+        
+        input[type="file"] {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+        
+        .file-info {
+            font-size: 11px;
+            color: #787774;
+            margin-top: 4px;
+        }
+        
         audio {
             width: 100%;
-            margin-bottom: 20px;
+            height: 32px;
+            margin-bottom: 12px;
+            outline: none;
         }
-        .controls {
+        
+        .controls-section {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 6px;
             flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 15px;
+            align-items: center;
         }
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
+        
+        .control-label {
+            font-size: 12px;
+            color: #787774;
+            font-weight: 500;
+            min-width: 60px;
         }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .loop-controls {
+        
+        .control-buttons {
             display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 15px;
+            gap: 4px;
+            flex-wrap: wrap;
         }
-        .loop-btn {
-            background-color: #28a745;
+        
+        button {
+            padding: 4px 8px;
+            border: 1px solid #d3d3d3;
+            border-radius: 4px;
+            background-color: #ffffff;
+            color: #37352f;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.15s ease;
         }
-        .loop-btn:hover {
-            background-color: #218838;
+        
+        button:hover {
+            background-color: #f7f6f3;
         }
-        .loop-btn.active {
-            background-color: #dc3545;
+        
+        button.active {
+            background-color: #2383e2;
+            color: white;
+            border-color: #2383e2;
         }
-        .loop-btn.active:hover {
-            background-color: #c82333;
+        
+        .status-info {
+            font-size: 11px;
+            color: #787774;
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
         }
-        .status-display {
-            margin: 10px 0;
-            text-align: center;
-            font-size: 14px;
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        .file-upload {
-            margin-bottom: 20px;
-            text-align: center;
+        
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #d3d3d3;
         }
-        input[type="file"] {
-            margin: 10px 0;
+        
+        .status-indicator.active {
+            background-color: #2383e2;
         }
-        .loop-status {
-            color: #28a745;
-            font-weight: bold;
+        
+        .compact-mode {
+            display: none;
         }
-        .loop-status.active {
-            color: #dc3545;
+        
+        /* 紧凑模式样式 */
+        @media (max-width: 400px) {
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .control-label {
+                min-width: auto;
+            }
         }
     </style>
 </head>
 <body>
     <div class="player-container">
         <div class="audio-info">
-            <div class="audio-title" id="audioTitle">选择音频文件开始播放</div>
+            <div class="audio-title" id="audioTitle">自定义音频播放器</div>
         </div>
         
         <div class="file-upload">
-            <input type="file" id="audioFile" accept="audio/*" />
-            <br>
-            <small>支持 MP3, WAV, M4A 等格式</small>
+            <div class="file-input-wrapper">
+                <button class="file-input-button" onclick="document.getElementById('audioFile').click()">
+                    选择音频文件
+                </button>
+                <input type="file" id="audioFile" accept="audio/*" />
+            </div>
+            <div class="file-info">支持 MP3, WAV, M4A 等格式</div>
         </div>
         
         <audio id="audioPlayer" controls style="display:none;">
             您的浏览器不支持音频播放
         </audio>
         
-        <div class="status-display" id="speedDisplay" style="display:none;">
-            播放速度: <span id="currentSpeed">1.0</span>x
+        <div class="controls-section" id="controlsSection" style="display:none;">
+            <div class="control-group">
+                <span class="control-label">播放速度:</span>
+                <div class="control-buttons">
+                    <button onclick="changeSpeed(0.5)">0.5×</button>
+                    <button onclick="changeSpeed(0.75)">0.75×</button>
+                    <button onclick="changeSpeed(1.0)" class="active" id="normalSpeed">1×</button>
+                    <button onclick="changeSpeed(1.25)">1.25×</button>
+                    <button onclick="changeSpeed(1.5)">1.5×</button>
+                    <button onclick="changeSpeed(2.0)">2×</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <span class="control-label">循环模式:</span>
+                <div class="control-buttons">
+                    <button id="loopBtn" onclick="toggleLoop()">列表循环</button>
+                    <button id="singleLoopBtn" onclick="toggleSingleLoop()">单曲循环</button>
+                </div>
+            </div>
         </div>
         
-        <div class="status-display" id="loopDisplay" style="display:none;">
-            循环模式: <span id="loopStatus" class="loop-status">关闭</span>
-        </div>
-        
-        <div class="loop-controls" id="loopControls" style="display:none;">
-            <button class="loop-btn" id="loopBtn" onclick="toggleLoop()">🔄 循环播放</button>
-            <button class="loop-btn" onclick="toggleSingleLoop()">🔂 单曲循环</button>
-        </div>
-        
-        <div class="controls" id="controls" style="display:none;">
-            <button onclick="changeSpeed(0.5)">0.5x</button>
-            <button onclick="changeSpeed(0.75)">0.75x</button>
-            <button onclick="changeSpeed(1.0)">正常</button>
-            <button onclick="changeSpeed(1.25)">1.25x</button>
-            <button onclick="changeSpeed(1.5)">1.5x</button>
-            <button onclick="changeSpeed(2.0)">2x</button>
+        <div class="status-info" id="statusInfo" style="display:none;">
+            <div class="status-item">
+                <span class="status-indicator" id="speedIndicator"></span>
+                <span>速度: <span id="currentSpeed">1.0</span>×</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator" id="loopIndicator"></span>
+                <span id="loopStatus">无循环</span>
+            </div>
         </div>
     </div>
 
@@ -134,13 +231,14 @@
         const audioPlayer = document.getElementById('audioPlayer');
         const audioFile = document.getElementById('audioFile');
         const audioTitle = document.getElementById('audioTitle');
-        const speedDisplay = document.getElementById('speedDisplay');
+        const controlsSection = document.getElementById('controlsSection');
+        const statusInfo = document.getElementById('statusInfo');
         const currentSpeed = document.getElementById('currentSpeed');
-        const controls = document.getElementById('controls');
-        const loopControls = document.getElementById('loopControls');
-        const loopDisplay = document.getElementById('loopDisplay');
-        const loopStatus = document.getElementById('loopStatus');
         const loopBtn = document.getElementById('loopBtn');
+        const singleLoopBtn = document.getElementById('singleLoopBtn');
+        const loopStatus = document.getElementById('loopStatus');
+        const speedIndicator = document.getElementById('speedIndicator');
+        const loopIndicator = document.getElementById('loopIndicator');
 
         let isLooping = false;
         let isSingleLoop = false;
@@ -152,17 +250,28 @@
                 const url = URL.createObjectURL(file);
                 audioPlayer.src = url;
                 audioPlayer.style.display = 'block';
-                speedDisplay.style.display = 'block';
-                loopDisplay.style.display = 'block';
-                loopControls.style.display = 'flex';
-                controls.style.display = 'flex';
+                controlsSection.style.display = 'block';
+                statusInfo.style.display = 'flex';
                 audioTitle.textContent = file.name;
+                
+                // 重置控制状态
+                resetControls();
             }
         });
 
+        // 重置控制状态
+        function resetControls() {
+            isLooping = false;
+            isSingleLoop = false;
+            audioPlayer.loop = false;
+            updateSpeedButtons(1.0);
+            updateLoopButtons();
+            updateStatus();
+        }
+
         // 音频播放结束时的处理
         audioPlayer.addEventListener('ended', function() {
-            if (isLooping || isSingleLoop) {
+            if (isLooping) {
                 audioPlayer.currentTime = 0;
                 audioPlayer.play();
             }
@@ -172,61 +281,85 @@
         function changeSpeed(speed) {
             audioPlayer.playbackRate = speed;
             currentSpeed.textContent = speed;
+            updateSpeedButtons(speed);
+            updateStatus();
         }
 
-        // 切换普通循环播放
+        // 更新速度按钮状态
+        function updateSpeedButtons(activeSpeed) {
+            document.querySelectorAll('.control-buttons button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 找到对应的速度按钮并激活
+            const buttons = document.querySelectorAll('.control-buttons button');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes(activeSpeed + '×')) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // 切换列表循环
         function toggleLoop() {
             isLooping = !isLooping;
             
             if (isLooping) {
-                isSingleLoop = false;  // 关闭单曲循环
-                loopBtn.classList.add('active');
-                loopBtn.textContent = '🔄 关闭循环';
-                loopStatus.textContent = '列表循环';
-                loopStatus.classList.add('active');
-                audioPlayer.loop = false;  // 使用自定义循环逻辑
-            } else {
-                loopBtn.classList.remove('active');
-                loopBtn.textContent = '🔄 循环播放';
-                updateLoopStatus();
+                isSingleLoop = false;
+                audioPlayer.loop = false;
             }
+            
+            updateLoopButtons();
+            updateStatus();
         }
 
         // 切换单曲循环
         function toggleSingleLoop() {
             isSingleLoop = !isSingleLoop;
+            audioPlayer.loop = isSingleLoop;
             
             if (isSingleLoop) {
-                isLooping = false;  // 关闭普通循环
-                loopBtn.classList.remove('active');
-                loopBtn.textContent = '🔄 循环播放';
-                audioPlayer.loop = true;  // 使用HTML5原生循环
-                loopStatus.textContent = '单曲循环';
-                loopStatus.classList.add('active');
-            } else {
-                audioPlayer.loop = false;
-                updateLoopStatus();
+                isLooping = false;
             }
+            
+            updateLoopButtons();
+            updateStatus();
         }
 
-        // 更新循环状态显示
-        function updateLoopStatus() {
-            if (!isLooping && !isSingleLoop) {
-                loopStatus.textContent = '关闭';
-                loopStatus.classList.remove('active');
+        // 更新循环按钮状态
+        function updateLoopButtons() {
+            loopBtn.classList.toggle('active', isLooping);
+            singleLoopBtn.classList.toggle('active', isSingleLoop);
+        }
+
+        // 更新状态显示
+        function updateStatus() {
+            // 更新循环状态
+            if (isLooping) {
+                loopStatus.textContent = '列表循环';
+                loopIndicator.classList.add('active');
+            } else if (isSingleLoop) {
+                loopStatus.textContent = '单曲循环';
+                loopIndicator.classList.add('active');
+            } else {
+                loopStatus.textContent = '无循环';
+                loopIndicator.classList.remove('active');
             }
+            
+            // 更新速度指示器
+            speedIndicator.classList.toggle('active', audioPlayer.playbackRate !== 1.0);
         }
 
         // 音频加载完成事件
         audioPlayer.addEventListener('loadedmetadata', function() {
-            console.log('音频加载完成，时长：' + audioPlayer.duration + '秒');
+            updateStatus();
         });
 
-        // 键盘快捷键支持
+        // 键盘快捷键支持（仅在焦点在播放器上时）
         document.addEventListener('keydown', function(e) {
-            if (audioPlayer.style.display !== 'none') {
+            if (document.activeElement.closest('.player-container') && audioPlayer.style.display !== 'none') {
                 switch(e.key) {
-                    case ' ':  // 空格键播放/暂停
+                    case ' ':
                         e.preventDefault();
                         if (audioPlayer.paused) {
                             audioPlayer.play();
@@ -234,11 +367,13 @@
                             audioPlayer.pause();
                         }
                         break;
-                    case 'l':  // L键切换循环
+                    case 'l':
+                    case 'L':
                         e.preventDefault();
                         toggleLoop();
                         break;
-                    case 's':  // S键切换单曲循环
+                    case 's':
+                    case 'S':
                         e.preventDefault();
                         toggleSingleLoop();
                         break;
