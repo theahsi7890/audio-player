@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义音频播放器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .player-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .audio-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .audio-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        audio {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .speed-display {
+            margin: 10px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        .file-upload {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container">
+        <div class="audio-info">
+            <div class="audio-title" id="audioTitle">选择音频文件开始播放</div>
+        </div>
+        
+        <div class="file-upload">
+            <input type="file" id="audioFile" accept="audio/*" />
+            <br>
+            <small>支持 MP3, WAV, M4A 等格式</small>
+        </div>
+        
+        <audio id="audioPlayer" controls style="display:none;">
+            您的浏览器不支持音频播放
+        </audio>
+        
+        <div class="speed-display" id="speedDisplay" style="display:none;">
+            播放速度: <span id="currentSpeed">1.0</span>x
+        </div>
+        
+        <div class="controls" id="controls" style="display:none;">
+            <button onclick="changeSpeed(0.5)">0.5x</button>
+            <button onclick="changeSpeed(0.75)">0.75x</button>
+            <button onclick="changeSpeed(1.0)">正常</button>
+            <button onclick="changeSpeed(1.25)">1.25x</button>
+            <button onclick="changeSpeed(1.5)">1.5x</button>
+            <button onclick="changeSpeed(2.0)">2x</button>
+        </div>
+    </div>
+
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioFile = document.getElementById('audioFile');
+        const audioTitle = document.getElementById('audioTitle');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const currentSpeed = document.getElementById('currentSpeed');
+        const controls = document.getElementById('controls');
+
+        // 文件选择处理
+        audioFile.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                audioPlayer.src = url;
+                audioPlayer.style.display = 'block';
+                speedDisplay.style.display = 'block';
+                controls.style.display = 'flex';
+                audioTitle.textContent = file.name;
+            }
+        });
+
+        // 改变播放速度
+        function changeSpeed(speed) {
+            audioPlayer.playbackRate = speed;
+            currentSpeed.textContent = speed;
+        }
+
+        // 可以添加更多自定义功能
+        audioPlayer.addEventListener('loadedmetadata', function() {
+            console.log('音频加载完成，时长：' + audioPlayer.duration + '秒');
+        });
+    </script>
+</body>
+</html>
